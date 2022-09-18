@@ -33,6 +33,7 @@ def analyze_data():
                 'station__location__state__name',
                 'station__location__country__name')
     alerts = 0
+
     for item in aggregation:
         alert = False
 
@@ -121,11 +122,8 @@ def check_temp_hum_data():
     alerta_temp = 25
     alerta_hum = 40
 
-    
-
-
     for item in aggregation:
-        
+        alerta = False
         variable = item["measurement__name"]
         country = item['station__location__country__name']
         state = item['station__location__state__name']
