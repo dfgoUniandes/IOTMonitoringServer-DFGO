@@ -121,14 +121,17 @@ def check_temp_hum_data():
     alerta_temp = 25
     alerta_hum = 40
 
-    country = item['station__location__country__name']
-    state = item['station__location__state__name']
-    city = item['station__location__city__name']
-    user = item['station__user__username']
+    
 
 
     for item in aggregation:
+        
         variable = item["measurement__name"]
+        country = item['station__location__country__name']
+        state = item['station__location__state__name']
+        city = item['station__location__city__name']
+        user = item['station__user__username']
+
         if item["check_value"] > alerta_temp and variable == "temperatura":
             message = "ALERT {} REF {} MED {}".format(variable, alerta_temp, item["check_value"])
             topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
