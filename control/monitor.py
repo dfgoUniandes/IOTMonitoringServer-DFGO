@@ -105,7 +105,7 @@ def check_temp_hum_data():
     # Compara las lecturas con los valores pre establecidos de alertas para temperatura y humedad
     # Envia una alerta para temperatura, una para humedad y un status de ok en caso de que todo este bien
 
-    data = Data.objects.filter(base_time__gte=datetime.now() - timedelta(minutes=10))
+    data = Data.objects.filter(base_time__gte=datetime.now() - timedelta(hours=1))
     aggregation = data.annotate(check_value=Avg('avg_value')) \
         .select_related('station', 'measurement') \
         .select_related('station__user', 'station__location') \
@@ -149,9 +149,6 @@ def check_temp_hum_data():
             topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
             print(datetime.now(), "Sending ok status to {} {}".format(topic, variable))
             client.publish(topic, message)
-
-        alerta = False
-
 
 def start_cron():
     '''
