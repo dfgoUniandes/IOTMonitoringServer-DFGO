@@ -120,7 +120,7 @@ def check_temp_hum_data():
                 'station__location__country__name')
 
     alerta_temp = 25
-    alerta_hum = 40
+    alerta_hum = 57
 
     for item in aggregation:
         alerta = False
