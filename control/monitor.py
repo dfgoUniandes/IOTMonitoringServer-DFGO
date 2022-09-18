@@ -99,6 +99,58 @@ def setup_mqtt():
     except Exception as e:
         print('Ocurrió un error al conectar con el bróker MQTT:', e)
 
+def check_temp_hum_data():
+    # Consulta a todos los registros durante los ultimos 10 minutos
+    # Compara las lecturas con los valores pre establecidos de alertas para temperatura y humedad
+    # Envia una alerta para temperatura, una para humedad y un status de ok en caso de que todo este bien
+
+    data = Data.objects.filter(base_time__gte=datetime.now() - timedelta(minutes=10))
+    aggregation = data.annotate(check_value=Avg('avg_value')) \
+        .select_related('station', 'measurement') \
+        .select_related('station__user', 'station__location') \
+        .select_related('station__location__city', 'station__location__state',
+                        'station__location__country') \
+        .values('check_value', 'station__user__username',
+                'measurement__name',
+                'measurement__max_value',
+                'measurement__min_value',
+                'station__location__city__name',
+                'station__location__state__name',
+                'station__location__country__name')
+
+    alerta_temp = 25
+    alerta_hum = 40
+
+    country = item['station__location__country__name']
+    state = item['station__location__state__name']
+    city = item['station__location__city__name']
+    user = item['station__user__username']
+
+
+    for item in aggregation:
+        variable = item["measurement__name"]
+        if item["check_value"] > alerta_temp and variable == "temperatura":
+            message = "ALERT {} REF {} MED {}".format(variable, alerta_temp, item["check_value"])
+            topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
+            print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
+            client.publish(topic, message)
+            alerta = True
+
+        if item["check_value"] > alerta_hum and variable == "humedad":
+            message = "ALERT {} REF {} MED {}".format(variable, alerta_hum, item["check_value"])
+            topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
+            print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
+            client.publish(topic, message)
+            alerta = True
+
+        if alerta == False:
+            message = "OK {} REF {} MED {}".format(variable, alerta_hum, item["check_value"])
+            topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
+            print(datetime.now(), "Sending ok status to {} {}".format(topic, variable))
+            client.publish(topic, message)
+
+        alerta = False
+
 
 def start_cron():
     '''
@@ -106,6 +158,7 @@ def start_cron():
     '''
     print("Iniciando cron...")
     schedule.every(5).minutes.do(analyze_data)
+    schedule.every(2).minutes.do(check_temp_hum_data)
     print("Servicio de control iniciado")
     while 1:
         schedule.run_pending()
