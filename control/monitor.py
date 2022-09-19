@@ -119,7 +119,7 @@ def check_temp_hum_data():
                 'station__location__state__name',
                 'station__location__country__name')
 
-    alerta_temp = 25
+    alerta_temp = 27
     alerta_hum = 57
 
     for item in aggregation:
@@ -148,7 +148,7 @@ def start_cron():
     '''
     print("Iniciando cron...")
     # schedule.every(5).minutes.do(analyze_data)
-    schedule.every(2).minutes.do(check_temp_hum_data)
+    schedule.every(1).minutes.do(check_temp_hum_data)
     print("Servicio de control iniciado")
     while 1:
         schedule.run_pending()
