@@ -101,7 +101,7 @@ def setup_mqtt():
         print('Ocurrió un error al conectar con el bróker MQTT:', e)
 
 def check_temp_hum_data():
-    # Consulta a todos los registros durante los ultimos 10 minutos
+    # Consulta a todos los registros durante los ultimos 60 minutos
     # Compara las lecturas con los valores pre establecidos de alertas para temperatura y humedad
     # Envia una alerta para temperatura, una para humedad y un status de ok en caso de que todo este bien
 
