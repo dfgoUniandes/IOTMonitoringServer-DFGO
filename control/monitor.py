@@ -123,7 +123,7 @@ def check_temp_hum_data():
     alerta_hum = 57
 
     for item in aggregation:
-        alerta = False
+
         variable = item["measurement__name"]
         country = item['station__location__country__name']
         state = item['station__location__state__name']
@@ -135,19 +135,11 @@ def check_temp_hum_data():
             topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
             print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
             client.publish(topic, message)
-            alerta = True
 
         if item["check_value"] > alerta_hum and variable == "humedad":
             message = "ALERT {} REF {} MED {}".format(variable, alerta_hum, item["check_value"])
             topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
             print(datetime.now(), "Sending alert to {} {}".format(topic, variable))
-            client.publish(topic, message)
-            alerta = True
-
-        if alerta == False:
-            message = "OK {} REF {} MED {}".format(variable, alerta_hum, item["check_value"])
-            topic = '{}/{}/{}/{}/in'.format(country, state, city, user)
-            print(datetime.now(), "Sending ok status to {} {}".format(topic, variable))
             client.publish(topic, message)
 
 def start_cron():
